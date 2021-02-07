@@ -1,4 +1,4 @@
-This fork mostly just added servo support by DWiskow(https://github.com/DWiskow) for Mega2560 board
+This fork mostly just added servo support by [DWiskow](https://github.com/DWiskow) for Mega2560 board
 
 2021/02/07: tested and working well on MKS GEN L 1.0 board with SG90 Servo (Digital Port 6).
 
