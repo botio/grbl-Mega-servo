@@ -21,6 +21,10 @@
 
 #include "grbl.h"
 
+#define RC_SERVO_SHORT      20      // set min pulse duration to (7 = 0.5ms, 15 = 1.03ms, 20=1.40ms)    // RC Servo
+#define RC_SERVO_LONG       38      // set max pulse duration (38 = 2.49ms, 31 = 2.05ms)                // RC Servo
+#define RC_SERVO_RANGE      (RC_SERVO_LONG-RC_SERVO_SHORT)                                              // RC Servo
+//#define RC_SERVO_INVERT  1       // Uncomment to invert servo direction                              // RC Servo
 
 static float pwm_gradient; // Precalulated value to speed up rpm to PWM conversions.
 
@@ -65,6 +69,16 @@ void spindle_stop()
   #else
     SPINDLE_ENABLE_PORT &= ~(1<<SPINDLE_ENABLE_BIT); // Set pin to low
   #endif
+  if (!(settings.flags & BITFLAG_LASER_MODE)) {                                                         // RC Servo
+  #ifdef RC_SERVO_SHORT                                                                                 // RC Servo
+    SPINDLE_TCCRA_REGISTER |= (1<<SPINDLE_COMB_BIT); // Ensure PWM output is enabled.                   // RC Servo
+    #ifdef RC_SERVO_INVERT                                                                              // RC Servo
+      SPINDLE_OCR_REGISTER = RC_SERVO_LONG;                                                             // RC Servo
+    #else                                                                                               // RC Servo
+      SPINDLE_OCR_REGISTER = RC_SERVO_SHORT;                                                            // RC Servo
+    #endif                                                                                              // RC Servo
+  #endif                                                                                                // RC Servo
+  }                                                                                                     // RC Servo
 }
 
 
@@ -86,7 +100,15 @@ void spindle_set_speed(uint16_t pwm_value)
     }
   #else
     if (pwm_value == SPINDLE_PWM_OFF_VALUE) {
-      SPINDLE_TCCRA_REGISTER &= ~(1<<SPINDLE_COMB_BIT); // Disable PWM. Output voltage is zero.
+              if (!(settings.flags & BITFLAG_LASER_MODE)) {                                                   // RC Servo
+          #ifndef RC_SERVO_SHORT                                                                        // RC Servo
+            SPINDLE_TCCRA_REGISTER &= ~(1<<SPINDLE_COMB_BIT); // Disable PWM. Output voltage is zero.   // RC Servo
+          #else                                                                                         // RC Servo
+            spindle_stop();                                                                             // RC Servo
+          #endif                                                                                        // RC Servo
+        } else {                                                                                        // RC Servo
+          SPINDLE_TCCRA_REGISTER &= ~(1<<SPINDLE_COMB_BIT); // Disable PWM. Output voltage is zero.     // RC Servo
+        }                                                                                               // RC Servo
     } else {
       SPINDLE_TCCRA_REGISTER |= (1<<SPINDLE_COMB_BIT); // Ensure PWM output is enabled.
     }
@@ -163,6 +185,15 @@ void spindle_set_speed(uint16_t pwm_value)
 	  sys.spindle_speed = rpm;
 	  pwm_value = floor((rpm-settings.rpm_min)*pwm_gradient) + SPINDLE_PWM_MIN_VALUE;
 	}
+   if (!(settings.flags & BITFLAG_LASER_MODE)) {                                                         // RC Servo
+        #ifdef RC_SERVO_SHORT                                                                               // RC Servo
+          #ifdef RC_SERVO_INVERT                                                                            // RC Servo
+            pwm_value = floor(RC_SERVO_LONG - rpm*(RC_SERVO_RANGE/(settings.rpm_max-settings.rpm_min)));    // RC Servo
+          #else                                                                                             // RC Servo
+            pwm_value = floor(rpm*(RC_SERVO_RANGE/(settings.rpm_max-settings.rpm_min))+RC_SERVO_SHORT);     // RC Servo
+          #endif                                                                                            // RC Servo
+        #endif                                                                                              // RC Servo
+      }                                                                                                     // RC Servo
 	return(pwm_value);
   }
 
