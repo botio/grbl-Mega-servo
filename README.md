@@ -1,6 +1,6 @@
 This fork mostly just added servo support by DWiskow(https://github.com/DWiskow) for Mega2560 board
 
-2021/02/07: tested and working well on MKS GEN L 1.0 board with SG90 Servo.
+2021/02/07: tested and working well on MKS GEN L 1.0 board with SG90 Servo (Digital Port 6).
 
 ![GitHub Logo](https://github.com/gnea/gnea-Media/blob/master/Grbl%20Logo/Grbl%20Logo%20250px.png?raw=true)
 ***
