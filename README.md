@@ -1,4 +1,4 @@
-Video DEMO:https://youtu.be/zacFojZsv_k
+Video DEMO with MKS GEN L board:https://youtu.be/zacFojZsv_k
 
 This fork mostly just added servo support by [DWiskow](https://github.com/DWiskow) for Mega2560 board
 
